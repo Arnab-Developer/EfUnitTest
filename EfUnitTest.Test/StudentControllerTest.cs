@@ -19,8 +19,10 @@ namespace EfUnitTest.Test
             var options = new DbContextOptionsBuilder<StudentContext>()
                 .UseInMemoryDatabase("ExamTestDatabase")
                 .Options;
+            var studentContext = new StudentContext(options);
+            _studentController = new StudentController(studentContext);
+
             _studentContext = new StudentContext(options);
-            _studentController = new StudentController(_studentContext);
 
             PopulateData();
         }

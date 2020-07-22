@@ -81,5 +81,5 @@ In case of unit testing for the controller I have pushed memory provider in db c
     var options = new DbContextOptionsBuilder<StudentContext>()
         .UseInMemoryDatabase("ExamTestDatabase")
         .Options;
-    _studentContext = new StudentContext(options);
-    _studentController = new StudentController(_studentContext);
+    var studentContext = new StudentContext(options);
+    _studentController = new StudentController(studentContext);
