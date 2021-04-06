@@ -1,4 +1,5 @@
-# EfUnitTest
+# EF unit test
+
 Unit test of Entity Framework Core data access layer.
 
 An example of data access layer unit testing with Entity Framework Core. In the application Entity Framework Core is using Sql Server provider to save and read data. But in unit testing, Entity Framework Core is using memory provider to test the data access layer.
@@ -14,72 +15,84 @@ It is a MVC application with ASP.NET Core and Entity Framework Core. In backend 
 
 Model
 
-    public class Student
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Subject { get; set; }
-    }
+```c#
+public class Student
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Subject { get; set; }
+}
+```
     
 Db context class
 
-    public class StudentContext : DbContext
+```c#
+public class StudentContext : DbContext
+{
+    public StudentContext(DbContextOptions<StudentContext> options)
+        : base(options)
     {
-        public StudentContext(DbContextOptions<StudentContext> options)
-            : base(options)
-        {
-        }
- 
-        public DbSet<Student> Students { get; set; }
     }
-    
+
+    public DbSet<Student> Students { get; set; }
+}
+```
+
 I have added the db context class in startup for dependency injection. Please notice that I have pushed SQL Server provider in the db context here.
 
-    public void ConfigureServices(IServiceCollection services)
-    {
-        services.AddControllersWithViews();
-        var conStr = Configuration.GetValue("ConStr");
-        services.AddDbContext<StudentContext>(option => option.UseSqlServer(conStr));
-    }
+```c#
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllersWithViews();
+    var conStr = Configuration.GetValue("ConStr");
+    services.AddDbContext<StudentContext>(option => option.UseSqlServer(conStr));
+}
+```
     
 I have added the connection string in appsettings.json.
 
-    {
-      "Logging": {
-        "LogLevel": {
-          "Default": "Information",
-          "Microsoft": "Warning",
-          "Microsoft.Hosting.Lifetime": "Information"
-         }
-       },
-       "AllowedHosts": "*",
-       "ConStr": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=StudentDb;Integrated Security=True"
-    }
+```xml
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+     }
+   },
+   "AllowedHosts": "*",
+   "ConStr": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=StudentDb;Integrated Security=True"
+}
+```
     
 Controller
 
-    public class StudentController : Controller
+```c#
+public class StudentController : Controller
+{
+    private readonly StudentContext _studentContext;
+
+    public StudentController(StudentContext studentContext)
     {
-        private readonly StudentContext _studentContext;
- 
-        public StudentController(StudentContext studentContext)
-        {
-            _studentContext = studentContext;
-        }
- 
-        public IActionResult Index()
-        {
-            var students = _studentContext.Students
-                .OrderBy(student => student.Id)
-                .ToList();
-            return View(students);
-        }
+        _studentContext = studentContext;
     }
+
+    public IActionResult Index()
+    {
+        var students = _studentContext.Students
+            .OrderBy(student => student.Id)
+            .ToList();
+        return View(students);
+    }
+}
+```
     
 In case of unit testing for the controller I have pushed memory provider in db context.
 
-    var options = new DbContextOptionsBuilder<StudentContext>()
-        .UseInMemoryDatabase("ExamTestDatabase")
-        .Options;
-    var studentContext = new StudentContext(options);
-    _studentController = new StudentController(studentContext);
+```c#
+var options = new DbContextOptionsBuilder<StudentContext>()
+    .UseInMemoryDatabase("ExamTestDatabase")
+    .Options;
+var studentContext = new StudentContext(options);
+_studentController = new StudentController(studentContext);
+```
