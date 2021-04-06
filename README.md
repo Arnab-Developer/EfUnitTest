@@ -51,7 +51,7 @@ public void ConfigureServices(IServiceCollection services)
     
 I have added the connection string in appsettings.json.
 
-```xml
+```json
 {
   "Logging": {
     "LogLevel": {
